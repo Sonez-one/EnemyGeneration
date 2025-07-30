@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    private readonly float _speed = 5f;
+    private readonly float _speed = 9f;
 
     private Vector3 _direction;
 

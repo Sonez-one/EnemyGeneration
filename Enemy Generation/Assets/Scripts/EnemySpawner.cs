@@ -16,7 +16,9 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator Spawn()
     {
-        while (true)
+        WaitForSeconds wait = new(_spawnRate);
+
+        while (enabled)
         {
             int randomSpawnPointIndex = Random.Range(0, _spawnPoints.Count);
             Vector3 direction = Random.insideUnitSphere.normalized;
@@ -25,7 +27,7 @@ public class EnemySpawner : MonoBehaviour
 
             spawnedEnemy.Init(direction);
 
-            yield return new WaitForSeconds(_spawnRate);
+            yield return wait;
         }
     }
 }
