@@ -1,21 +1,53 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class Enemy : MonoBehaviour
 {
-    private readonly float _speed = 9f;
+    private readonly float _speed = 3.8f;
 
-    private Vector3 _direction;
+    private Vector3 _startPosition;
+    private Rigidbody _rigidbody;
+    private Target _target;
 
-    private void Update()
+    public Vector3 StartPosition => _startPosition;
+
+    public event Action<Enemy> ReachedTarget;
+
+    protected virtual void Awake()
     {
-        Move();
+        _rigidbody = GetComponent<Rigidbody>();
+        _rigidbody.constraints = RigidbodyConstraints.FreezePositionY;
+        _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
-    public void Init(Vector3 direction)
+    private void OnCollisionEnter(Collision collision)
     {
-        _direction = direction;
+        if(collision.gameObject.TryGetComponent<Target>(out Target target))
+        {
+            if (target.StartPosition == _startPosition) 
+            {
+                ReachedTarget?.Invoke(this);
+            }
+        }
     }
 
-    private void Move() => 
-        transform.Translate(_speed * Time.deltaTime * _direction);
+    public void Init(Vector3 startPositon, Target target)
+    {
+        _startPosition = startPositon;
+        transform.position = _startPosition;
+        _target = target;
+    }
+
+    public IEnumerator Move()
+    {
+        while (enabled)
+        {
+            transform.LookAt(_target.transform);
+            transform.position = Vector3.MoveTowards(transform.position, _target.transform.position, _speed * Time.deltaTime);
+            
+            yield return null;
+        }
+    }
 }
